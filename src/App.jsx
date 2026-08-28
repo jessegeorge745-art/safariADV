@@ -15,7 +15,7 @@
  */
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './context/Authprovider'
+import { AuthProvider } from './context/AuthProvider'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Layouts
