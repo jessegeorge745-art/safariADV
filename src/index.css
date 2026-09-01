@@ -1,24 +1,26 @@
 @import "tailwindcss";
 
 /*
-  SafariADV — Theme: Sunbaked Coast
-  Warm terracotta and sand tones on a dark base — reads well against
-  travel/landscape photography. No motion: all transitions removed
-  per project preference.
+  SafariADV — Theme: Safari Lodge
+  Deep bottle-green as the dominant surface color (not just an accent),
+  with warm cream text and a mustard-gold highlight for actions —
+  evokes a premium eco-lodge / national-park-signage feel rather than a
+  generic SaaS palette. No motion: all transitions removed per project
+  preference.
 */
 
 :root {
-  --color-bg:           #1a1410;
-  --color-surface:      #241d17;
-  --color-surface-alt:  #2e251d;
-  --color-border:       #3d3126;
-  --color-primary:      #e0793a;
-  --color-primary-hover:#c9642c;
-  --color-on-primary:   #1a1410;
-  --color-text:         #f5ede3;
-  --color-text-muted:   #b3a292;
+  --color-bg:           #0f2419;
+  --color-surface:      #16301f;
+  --color-surface-alt:  #1e3c27;
+  --color-border:       #2c4d34;
+  --color-primary:      #d4a84b;
+  --color-primary-hover:#c0953d;
+  --color-on-primary:   #0f2419;
+  --color-text:         #f2ead8;
+  --color-text-muted:   #a9bfab;
   --color-danger:       #ef4444;
-  --color-success:      #22c55e;
+  --color-success:      #4ade80;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -113,9 +115,9 @@ label {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-.badge-gold    { background: rgba(224,121,58,0.15); color: var(--color-primary); }
-.badge-green   { background: rgba(34,197,94,0.15);  color: var(--color-success); }
-.badge-red     { background: rgba(239,68,68,0.15);  color: var(--color-danger); }
+.badge-gold    { background: rgba(212,168,75,0.16);  color: var(--color-primary); }
+.badge-green   { background: rgba(74,222,128,0.16);  color: var(--color-success); }
+.badge-red     { background: rgba(239,68,68,0.16);   color: var(--color-danger); }
 .badge-muted   { background: var(--color-surface-alt); color: var(--color-text-muted); }
 
 /* Error / success messages */
@@ -140,7 +142,7 @@ label {
 
 .image-dropzone[data-active="true"] {
   border-color: var(--color-primary);
-  background: rgba(224, 121, 58, 0.08);
+  background: rgba(212, 168, 75, 0.08);
 }
 
 .image-remove-btn {
@@ -151,7 +153,7 @@ label {
   height: 26px;
   border-radius: 50%;
   border: none;
-  background: rgba(26, 20, 16, 0.75);
+  background: rgba(15, 36, 25, 0.75);
   color: var(--color-text);
   cursor: pointer;
   font-size: 0.8rem;

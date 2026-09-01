@@ -11,12 +11,13 @@
 import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 import Brand from '../Brand'
+import HomeIcon from '../icons/HomeIcon'
 
 export default function PublicNavbar() {
   const [open, setOpen] = useState(false)
 
   const linkClass = ({ isActive }) =>
-    `text-sm hover:text-[var(--color-primary)] ${
+    `text-sm font-medium hover:text-[var(--color-primary)] ${
       isActive ? 'text-[var(--color-primary)] font-semibold' : 'text-[var(--color-text-muted)]'
     }`
 
@@ -41,12 +42,13 @@ export default function PublicNavbar() {
           justifyContent: 'space-between',
         }}
       >
-        {/* Logo */}
-        <Brand homePath="/" />
+        {/* Logo — plain text, not a link (see Brand.jsx) */}
+        <Brand />
 
         {/* Desktop links */}
         <div className="hidden md:flex" style={{ alignItems: 'center', gap: '1.75rem' }}>
-          <NavLink to="/trip_packages" className={linkClass}>Browse TripPackages</NavLink>
+          <NavLink to="/" end className={linkClass} aria-label="Home"><HomeIcon /></NavLink>
+          <NavLink to="/trip_packages" className={linkClass}>Trips</NavLink>
           <NavLink to="/about"  className={linkClass}>About</NavLink>
           <NavLink to="/contact" className={linkClass}>Contact</NavLink>
 
@@ -86,7 +88,8 @@ export default function PublicNavbar() {
             gap: '0.85rem',
           }}
         >
-          <NavLink to="/trip_packages"  className={linkClass} onClick={() => setOpen(false)}>Browse TripPackages</NavLink>
+          <NavLink to="/" end className={linkClass} onClick={() => setOpen(false)} aria-label="Home"><HomeIcon /></NavLink>
+          <NavLink to="/trip_packages"  className={linkClass} onClick={() => setOpen(false)}>Trips</NavLink>
           <NavLink to="/about"   className={linkClass} onClick={() => setOpen(false)}>About</NavLink>
           <NavLink to="/contact" className={linkClass} onClick={() => setOpen(false)}>Contact</NavLink>
           <Link

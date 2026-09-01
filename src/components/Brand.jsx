@@ -1,29 +1,16 @@
+/**
+ * Brand
+ *
+ * Purely a static label — no icon, no link. "Home" now lives as a
+ * regular text link in each navbar's own link row instead of being a
+ * clickable icon here (see PublicNavbar/TravelerNavbar/AgentNavbar/
+ * AdminNavbar — each adds its own "Home" NavLink pointing wherever
+ * that role's landing page is).
+ */
 
-import { Link } from 'react-router-dom'
-
-function HomeIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 10.5 12 3l9 7.5" />
-      <path d="M5 9.5V21h14V9.5" />
-    </svg>
-  )
-}
-
-export default function Brand({ homePath = '/', badge }) {
+export default function Brand({ badge }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <Link
-        to={homePath}
-        aria-label="Home"
-        style={{
-          display: 'inline-flex',
-          color: 'var(--color-primary)',
-          textDecoration: 'none',
-        }}
-      >
-        <HomeIcon />
-      </Link>
       <span
         style={{
           fontSize: '1.05rem',
