@@ -28,13 +28,12 @@ services:
         fromDatabase:
           name: safariadv-db
           property: connectionString
-      # Comma-separated list of allowed frontend origins, e.g. your
-      # Vercel deployment URL.
+      # Public frontend origin used by the deployed Vercel app.
       - key: CORS_ORIGINS
-        sync: false
-      # Your deployed frontend URL - used to build the password-reset link.
+        value: https://safari-adv.vercel.app
+      # Deployed frontend URL used to build password-reset links.
       - key: FRONTEND_URL
-        sync: false
+        value: https://safari-adv.vercel.app
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD
