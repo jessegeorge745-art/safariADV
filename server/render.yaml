@@ -6,16 +6,18 @@
 # to fill in the vars marked "sync: false" (secrets it won't guess for
 # you) before the first deploy.
 #
-# After the first successful deploy, run `python seed.py` once from the
-# service's Shell tab (Render dashboard) to create the tables and the
-# first admin account.
+# seed.py runs as part of the build (see buildCommand) rather than being
+# a one-off manual step, because the interactive Shell tab needs a paid
+# plan. It's safe to run on every deploy: db.create_all() only creates
+# tables that don't exist yet, and the admin-account/category inserts are
+# each guarded by an "if it doesn't already exist" check.
 
 services:
   - type: web
     name: safariadv-api
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && python seed.py
     startCommand: gunicorn run:app
     envVars:
       - key: PYTHON_VERSION
