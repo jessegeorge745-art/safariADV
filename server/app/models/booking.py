@@ -23,6 +23,13 @@ class Booking(db.Model):
 
     spots = db.Column(db.Integer, nullable=False, default=1)
 
+    # Snapshotted at creation time (trip_package.price * spots) so it never
+    # drifts if the agent edits the trip's price later.
+    total_amount = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+
+    # mpesa | card | cash - how the traveler said they'd pay at booking time.
+    payment_method = db.Column(db.String(20), nullable=False, default="cash")
+
     # Two independent status fields - don't confuse them.
     # status: pending -> confirmed -> completed (or cancelled)
     status = db.Column(db.String(20), nullable=False, default="pending")
@@ -52,7 +59,11 @@ class Booking(db.Model):
             "guest_name": self.guest_name,
             "guest_email": self.guest_email,
             "guest_phone": self.guest_phone,
-            "spots": self.spots,
+            # Exposed as num_travelers (not the column name "spots") because
+            # every frontend page that reads a booking reads num_travelers.
+            "num_travelers": self.spots,
+            "total_amount": float(self.total_amount) if self.total_amount is not None else None,
+            "payment_method": self.payment_method,
             "status": self.status,
             "payment_status": self.payment_status,
             "created_at": self.created_at.isoformat() if self.created_at else None,

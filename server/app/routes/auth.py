@@ -1,7 +1,12 @@
 import re
 
 from flask import Blueprint, request, jsonify, current_app
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    jwt_required,
+    get_jwt_identity,
+)
 
 from app.extensions import db
 from app.models.user import User
@@ -30,6 +35,12 @@ def _validate_email(email):
 
 def _issue_token(user):
     return create_access_token(
+        identity=str(user.id), additional_claims={"role": user.role}
+    )
+
+
+def _issue_refresh_token(user):
+    return create_refresh_token(
         identity=str(user.id), additional_claims={"role": user.role}
     )
 
@@ -106,7 +117,13 @@ def _login(expected_role):
     if user.status == "deactivated":
         return jsonify({"error": "This account has been deactivated."}), 403
 
-    return jsonify({"user": user.to_dict(), "access_token": _issue_token(user)}), 200
+    return jsonify(
+        {
+            "user": user.to_dict(),
+            "access_token": _issue_token(user),
+            "refresh_token": _issue_refresh_token(user),
+        }
+    ), 200
 
 
 @auth_bp.route("/traveler/login", methods=["POST"])
@@ -122,6 +139,23 @@ def login_agent():
 @auth_bp.route("/admin/login", methods=["POST"])
 def login_admin():
     return _login("admin")
+
+
+@auth_bp.route("/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    user_id = get_jwt_identity()
+    user = User.query.get(int(user_id)) if user_id is not None else None
+    if not user or user.status != "active":
+        return jsonify({"error": "Account is not active."}), 403
+
+    return jsonify(
+        {
+            "user": user.to_dict(),
+            "access_token": _issue_token(user),
+            "refresh_token": _issue_refresh_token(user),
+        }
+    ), 200
 
 
 @auth_bp.route("/me", methods=["GET"])
@@ -208,4 +242,6 @@ def reset_password():
 
     user.set_password(new_password)
     db.session.commit()
-    return jsonify({"message": "Password has been reset. You can now log in."}), 200
+    return jsonify(
+        {"message": "Password has been reset. You can now log in.", "role": user.role}
+    ), 200

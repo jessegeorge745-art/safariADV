@@ -13,6 +13,7 @@ class TripPackage(db.Model):
 
     title = db.Column(db.String(200), nullable=False)
     destination = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.Text, nullable=True)
     itinerary = db.Column(db.Text, nullable=True)
     price = db.Column(db.Numeric(10, 2), nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
@@ -66,6 +67,7 @@ class TripPackage(db.Model):
             "agent_id": self.agent_id,
             "title": self.title,
             "destination": self.destination,
+            "description": self.description,
             "itinerary": self.itinerary,
             "price": float(self.price) if self.price is not None else None,
             "capacity": self.capacity,

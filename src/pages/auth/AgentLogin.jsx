@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../../context/useAuth'
 
 export default function AgentLogin() {
   const { login } = useAuth()
   const navigate  = useNavigate()
+  const location  = useLocation()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
@@ -32,6 +33,7 @@ export default function AgentLogin() {
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.88rem', marginBottom: 24 }}>
           New agent? <Link to="/agent/register" style={{ color: 'var(--color-primary)' }}>Register your account</Link>
         </p>
+        {location.state?.message && <p className="msg-success">{location.state.message}</p>}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div><label>Email</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></div>
           <div><label>Password</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} required /></div>

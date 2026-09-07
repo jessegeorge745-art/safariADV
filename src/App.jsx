@@ -15,7 +15,6 @@
  */
 
 import {  Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './context/AuthProvider'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Layouts
@@ -30,6 +29,7 @@ import TripPackages from './pages/public/TripPackages'
 import TripPackageDetails from './pages/public/TripPackageDetails'
 import About from './pages/public/About'
 import Contact from './pages/public/Contact'
+import NotFound from './pages/NotFound'
 
 // Auth pages
 import TravelerLogin from './pages/auth/TravelerLogin'
@@ -64,7 +64,6 @@ import AdminReports from './pages/admin/Reports'
 export default function App() {
   return (
     <>
-      <AuthProvider>
         <Routes>
           {/* Public (no auth needed) */}
           <Route element={<PublicLayout />}>
@@ -82,6 +81,8 @@ export default function App() {
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+
+            <Route path="*" element={<NotFound />} />
           </Route>
 
           {/* Traveler only */}
@@ -129,7 +130,6 @@ export default function App() {
             <Route path="/admin/reports" element={<AdminReports />} />
           </Route>
         </Routes>
-      </AuthProvider>
     </>
   )
 }

@@ -1,42 +1,42 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { apiRequest } from '../../api/client'
 import { useAuth } from '../../context/useAuth'
+import TripPackageForm from '../../components/forms/TripPackageForm'
 
-export default function TripPackages() {
+export default function CreateTripPackage() {
   const { token } = useAuth()
-  const [trips, setTrips] = useState([])
-  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
-  useEffect(() => {
-    apiRequest('/trip_packages', { token })
-      .then(setTrips)
+  function handleSubmit(formData) {
+    setError('')
+    setSubmitting(true)
+    apiRequest('/trip_packages', {
+      method: 'POST',
+      token,
+      body: {
+        ...formData,
+        price: Number(formData.price),
+        capacity: Number(formData.capacity),
+      },
+    })
+      .then(() => navigate('/agent/trip_packages'))
       .catch(err => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [token])
-
-  if (loading) return <p>Loading…</p>
-  if (error) return <p className="msg-error">{error}</p>
+      .finally(() => setSubmitting(false))
+  }
 
   return (
-    <div>
-      <h1>My Trip Packages</h1>
-      <Link className="btn-primary" to="/agent/trip_packages/create">Create New</Link>
-      <div className="card-grid">
-        {trips.map(t => (
-          <div className="card" key={t.id}>
-            <h3>{t.title}</h3>
-            <p>{t.destination}</p>
-            <span className={`badge-${t.status}`}>{t.status}</span>
-            <div className="card-actions">
-              <Link to={`/agent/trip_packages/${t.id}/edit`}>Edit</Link>
-              <Link to={`/agent/trip_packages/${t.id}/orders`}>Orders</Link>
-              <Link to={`/agent/trip_packages/${t.id}/analytics`}>Analytics</Link>
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="card" style={{ maxWidth: 640 }}>
+      <h1>Create Trip Package</h1>
+      {error && <p className="msg-error">{error}</p>}
+      <TripPackageForm
+        submitLabel="Create Trip"
+        isSubmitting={submitting}
+        onSubmit={handleSubmit}
+        onCancel={() => navigate('/agent/trip_packages')}
+      />
     </div>
   )
 }

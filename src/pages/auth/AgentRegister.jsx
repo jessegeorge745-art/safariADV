@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/useAuth'
 
 export default function AgentRegister() {
   const { registerAgent } = useAuth()
-  const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', businessName: '' })
   const [error, setError]   = useState('')
   const [loading, setLoading] = useState(false)

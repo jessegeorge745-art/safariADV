@@ -1,4 +1,5 @@
 import re
+from decimal import Decimal
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
@@ -13,6 +14,7 @@ from app.utils.mailer import send_booking_confirmation
 bookings_bp = Blueprint("bookings", __name__, url_prefix="/api/bookings")
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+PAYMENT_METHODS = ("mpesa", "card", "cash")
 
 
 def _optional_current_user():
@@ -51,7 +53,16 @@ def create_booking():
             {"error": f"Only {trip.spots_remaining} spot(s) remaining on this trip."}
         ), 400
 
-    booking = Booking(trip_package_id=trip.id, spots=spots)
+    payment_method = data.get("payment_method")
+    if payment_method not in PAYMENT_METHODS:
+        payment_method = "cash"
+
+    booking = Booking(
+        trip_package_id=trip.id,
+        spots=spots,
+        total_amount=Decimal(trip.price) * spots,
+        payment_method=payment_method,
+    )
 
     if is_traveler_session:
         booking.user_id = current_user.id
@@ -92,6 +103,10 @@ def list_bookings(current_user):
         )
     else:  # admin
         query = Booking.query
+
+    trip_package_id = request.args.get("trip_package_id", type=int)
+    if trip_package_id is not None:
+        query = query.filter(Booking.trip_package_id == trip_package_id)
 
     bookings = query.order_by(Booking.created_at.desc()).all()
     return jsonify([b.to_dict() for b in bookings]), 200

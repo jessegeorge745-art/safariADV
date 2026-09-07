@@ -21,7 +21,7 @@ export default function TravelerProfile() {
     setLoading(true)
     try {
       const updated = await apiRequest('/auth/me', { method: 'PUT', token, body: form })
-      updateUser(updated)
+      updateUser(updated.user)
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch (err) {

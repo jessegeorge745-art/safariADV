@@ -112,6 +112,9 @@ def _validate_trip_fields(data, partial=False):
             return None, "destination is required."
         cleaned["destination"] = destination
 
+    if "description" in data:
+        cleaned["description"] = data.get("description")
+
     if "itinerary" in data:
         cleaned["itinerary"] = data.get("itinerary")
 

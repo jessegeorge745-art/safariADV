@@ -5,3 +5,4 @@ from app.models.booking import Booking
 from app.models.setting import Setting
 from app.models.favorite import Favorite
 from app.models.review import Review
+from app.models.payment import Payment
