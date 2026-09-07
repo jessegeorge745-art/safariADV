@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from app.config import Config
 from app.extensions import db, jwt, bcrypt, mail, cors
 
@@ -24,5 +24,11 @@ def create_app():
     app.register_blueprint(bookings_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(payments_bp)
+
+    # No DB access - lets you tell "the app is up" apart from "the DB is
+    # broken" when a deploy is misbehaving (e.g. bad DATABASE_URL).
+    @app.route("/api/health", methods=["GET"])
+    def health():
+        return jsonify({"status": "ok"}), 200
 
     return app

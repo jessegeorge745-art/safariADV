@@ -10,10 +10,24 @@ def _bool(name, default="True"):
     return os.environ.get(name, default).strip().lower() in ("1", "true", "yes", "on")
 
 
+def _database_uri():
+    """
+    Render (and Heroku) Postgres connection strings are sometimes handed
+    out as "postgres://...", which psycopg2/SQLAlchemy 2.x reject outright
+    (NoSuchModuleError: Can't load plugin: sqlalchemy.dialects:postgres) -
+    every single DB-touching request would 500. Normalize it here so the
+    app works regardless of which scheme the platform gives us.
+    """
+    uri = os.environ.get("DATABASE_URL", "sqlite:///app.db")
+    if uri.startswith("postgres://"):
+        uri = uri.replace("postgres://", "postgresql://", 1)
+    return uri
+
+
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "change-me")
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "change-me-too")
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///app.db")
+    SQLALCHEMY_DATABASE_URI = _database_uri()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Comma-separated list, e.g. "http://localhost:5173,https://safariadv.com".
