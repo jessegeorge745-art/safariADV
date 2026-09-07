@@ -17,12 +17,15 @@ def _send(subject, recipient, body):
     """
     if not recipient:
         return
+    if not current_app.config.get("MAIL_SERVER"):
+        logger.info("MAIL_SERVER not configured - skipping email to %s", recipient)
+        return
     try:
         msg = Message(
             subject=subject,
             recipients=[recipient],
             body=body,
-            sender=current_app.config.get("MAIL_USERNAME"),
+            sender=current_app.config.get("MAIL_DEFAULT_SENDER"),
         )
         mail.send(msg)
     except Exception:

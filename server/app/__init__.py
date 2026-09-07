@@ -11,7 +11,7 @@ def create_app():
     jwt.init_app(app)
     bcrypt.init_app(app)
     mail.init_app(app)
-    cors.init_app(app)
+    cors.init_app(app, origins=app.config["CORS_ORIGINS"], supports_credentials=True)
 
     from app.routes.auth import auth_bp
     from app.routes.trip_packages import trip_packages_bp
