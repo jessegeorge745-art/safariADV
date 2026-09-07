@@ -34,7 +34,7 @@ export default function Orders() {
 
   const revenue = bookings
     .filter(b => b.status === 'confirmed' || b.status === 'completed')
-    .reduce((s, b) => s + (b.total_price || 0), 0)
+    .reduce((s, b) => s + (b.total_amount || 0), 0)
 
   return (
     <div>
@@ -49,7 +49,7 @@ export default function Orders() {
             <tr key={b.id}>
               <td>#{b.id}</td>
               <td>{b.trip_package?.title || b.trip_package_id}</td>
-              <td>{b.guest_name || b.user?.name || '—'}</td>
+              <td>{b.traveler_name || '—'}</td>
               <td>{b.status}</td>
               <td>{b.payment_status}</td>
               <td>

@@ -48,7 +48,7 @@ export default function TripPackageOrders() {
           {bookings.map(b => (
             <tr key={b.id}>
               <td>#{b.id}</td>
-              <td>{b.guest_name || b.user?.name || '—'}</td>
+              <td>{b.traveler_name || '—'}</td>
               <td>{b.num_travelers}</td>
               <td>{b.status}</td>
               <td>{b.payment_status}</td>

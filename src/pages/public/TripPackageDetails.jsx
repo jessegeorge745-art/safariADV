@@ -11,11 +11,14 @@
  *     itinerary/receipt can be sent to them (NOT for signing in).
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { apiRequest } from '../../api/client'
 import { useAuth } from '../../context/useAuth'
 import WeatherWidget from '../../components/WeatherWidget'
+
+const MPESA_POLL_INTERVAL_MS = 3000
+const MPESA_POLL_MAX_ATTEMPTS = 20 // ~60s
 
 const PAYMENT_METHODS = [
   { value: 'mpesa', label: 'M-Pesa' },
@@ -25,7 +28,7 @@ const PAYMENT_METHODS = [
 
 export default function TripPackageDetails() {
   const { id } = useParams()
-  const { token, role, isAuthenticated } = useAuth()
+  const { token, role, isAuthenticated, user } = useAuth()
 
   const [tripPackage, setTripPackage] = useState(null)
   const [error, setError] = useState('')
@@ -45,7 +48,20 @@ export default function TripPackageDetails() {
   const [guestEmail, setGuestEmail] = useState('')
   const [guestPhone, setGuestPhone] = useState('')
 
+  // M-Pesa STK push state — set once a booking paying by mpesa is created.
+  const [mpesaPhone, setMpesaPhone] = useState('')
+  const [paymentState, setPaymentState] = useState(null) // null | 'awaiting' | 'success' | 'failed'
+  const [paymentMsg, setPaymentMsg] = useState('')
+  const pollRef = useRef(null)
+
   const isTravelerSession = isAuthenticated && role === 'traveler'
+
+  useEffect(() => {
+    if (isTravelerSession && user?.phone) setMpesaPhone(user.phone)
+  }, [isTravelerSession, user])
+
+  // Stop polling if the traveler navigates away mid-payment.
+  useEffect(() => () => clearInterval(pollRef.current), [])
 
   useEffect(() => {
     apiRequest(`/trip_packages/${id}`, { token })
@@ -68,11 +84,16 @@ export default function TripPackageDetails() {
       setBookingMsg('Please fill in your name, email and phone so we can send your itinerary.')
       return
     }
+    const mpesaTargetPhone = isTravelerSession ? mpesaPhone : guestPhone
+    if (paymentMethod === 'mpesa' && !mpesaTargetPhone) {
+      setBookingMsg('Please enter the M-Pesa phone number to pay with.')
+      return
+    }
 
     setSubmitting(true)
     setBookingMsg('')
     try {
-      await apiRequest('/bookings', {
+      const booking = await apiRequest('/bookings', {
         method: 'POST',
         token: isTravelerSession ? token : null,
         body: {
@@ -88,11 +109,61 @@ export default function TripPackageDetails() {
       })
       setBookingSuccess(true)
       setBookingMsg(`Booking submitted for ${numTravelers} traveler(s) — pending confirmation.`)
+      if (paymentMethod === 'mpesa') {
+        triggerMpesaPayment(booking.id, mpesaTargetPhone)
+      }
     } catch (err) {
       setBookingMsg(err.message)
     } finally {
       setSubmitting(false)
     }
+  }
+
+  async function triggerMpesaPayment(bookingId, phone) {
+    setPaymentState('awaiting')
+    setPaymentMsg('Sending the M-Pesa prompt to your phone…')
+    try {
+      const res = await apiRequest('/payments/mpesa/stkpush', {
+        method: 'POST',
+        body: { booking_id: bookingId, phone },
+      })
+      setPaymentMsg(res.customer_message || 'Enter your M-Pesa PIN on your phone to complete payment.')
+      pollMpesaStatus(res.payment.checkout_request_id)
+    } catch (err) {
+      setPaymentState('failed')
+      setPaymentMsg(err.message)
+    }
+  }
+
+  function pollMpesaStatus(checkoutRequestId) {
+    let attempts = 0
+    pollRef.current = setInterval(async () => {
+      attempts += 1
+      try {
+        const payment = await apiRequest(`/payments/mpesa/status/${checkoutRequestId}`)
+        if (payment.status === 'success') {
+          clearInterval(pollRef.current)
+          setPaymentState('success')
+          setPaymentMsg(`Payment received — M-Pesa receipt ${payment.mpesa_receipt_number}.`)
+        } else if (payment.status === 'failed' || payment.status === 'cancelled') {
+          clearInterval(pollRef.current)
+          setPaymentState('failed')
+          setPaymentMsg(
+            payment.status === 'cancelled'
+              ? 'Payment was cancelled on your phone.'
+              : (payment.result_desc || 'Payment failed.')
+          )
+        } else if (attempts >= MPESA_POLL_MAX_ATTEMPTS) {
+          clearInterval(pollRef.current)
+          setPaymentState('failed')
+          setPaymentMsg(
+            "We didn't get a confirmation in time. If you completed the M-Pesa prompt, your booking will still be marked paid shortly — otherwise contact us with your booking ID."
+          )
+        }
+      } catch {
+        // Transient network hiccup — keep polling until attempts run out.
+      }
+    }, MPESA_POLL_INTERVAL_MS)
   }
 
   if (loading) return <div className="page"><p style={{ color: 'var(--color-text-muted)' }}>Loading trip...</p></div>
@@ -161,6 +232,12 @@ export default function TripPackageDetails() {
             ) : bookingSuccess ? (
               <div>
                 <p className="msg-success" style={{ fontSize: '1rem' }}>✓ {bookingMsg}</p>
+                {paymentState && (
+                  <p className={paymentState === 'failed' ? 'msg-error' : 'msg-success'} style={{ marginTop: 8 }}>
+                    {paymentState === 'awaiting' ? '⏳ ' : paymentState === 'success' ? '✓ ' : '⚠ '}
+                    {paymentMsg}
+                  </p>
+                )}
                 {isTravelerSession && (
                   <Link to="/traveler/tickets" className="btn-primary" style={{ marginTop: 12, width: '100%' }}>
                     View My Bookings
@@ -227,6 +304,19 @@ export default function TripPackageDetails() {
                         ))}
                       </select>
                     </div>
+
+                    {paymentMethod === 'mpesa' && isTravelerSession && (
+                      <div style={{ marginBottom: 16 }}>
+                        <label>M-Pesa Phone Number</label>
+                        <input
+                          type="tel"
+                          value={mpesaPhone}
+                          onChange={e => setMpesaPhone(e.target.value)}
+                          required
+                          placeholder="07XX XXX XXX"
+                        />
+                      </div>
+                    )}
 
                     <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={submitting}>
                       {submitting ? 'Submitting...' : 'Confirm Booking'}

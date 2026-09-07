@@ -1,0 +1,58 @@
+# Render Blueprint - https://render.com/docs/blueprint-spec
+#
+# Deploy: push this repo to GitHub, then in the Render dashboard choose
+# "New > Blueprint" and point it at the repo (Root Directory: server).
+# Render creates the web service + Postgres database below and asks you
+# to fill in the vars marked "sync: false" (secrets it won't guess for
+# you) before the first deploy.
+#
+# After the first successful deploy, run `python seed.py` once from the
+# service's Shell tab (Render dashboard) to create the tables and the
+# first admin account.
+
+services:
+  - type: web
+    name: safariadv-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn run:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: safariadv-db
+          property: connectionString
+      # Comma-separated list of allowed frontend origins, e.g. your
+      # Vercel deployment URL.
+      - key: CORS_ORIGINS
+        sync: false
+      # Your deployed frontend URL - used to build the password-reset link.
+      - key: FRONTEND_URL
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: MPESA_ENV
+        value: sandbox
+      - key: MPESA_CONSUMER_KEY
+        sync: false
+      - key: MPESA_CONSUMER_SECRET
+        sync: false
+      - key: MPESA_SHORTCODE
+        value: "174379"
+      - key: MPESA_PASSKEY
+        sync: false
+      # https://<this-service>.onrender.com/api/payments/mpesa/callback
+      - key: MPESA_CALLBACK_URL
+        sync: false
+
+databases:
+  - name: safariadv-db
+    plan: free

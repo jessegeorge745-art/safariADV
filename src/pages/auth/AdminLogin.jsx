@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/useAuth'
 
 export default function AdminLogin() {
   const { login } = useAuth()
   const navigate  = useNavigate()
+  const location  = useLocation()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
@@ -29,6 +30,7 @@ export default function AdminLogin() {
       <div style={{ width: '100%', maxWidth: 380 }}>
         <span className="badge badge-red" style={{ marginBottom: 14, display: 'inline-block' }}>Admin Access Only</span>
         <h1 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: 20 }}>Admin Login</h1>
+        {location.state?.message && <p className="msg-success">{location.state.message}</p>}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div><label>Email</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></div>
           <div><label>Password</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} required /></div>

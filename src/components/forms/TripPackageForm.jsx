@@ -2,6 +2,7 @@
 // Reusable form for creating and editing trips
 
 import { useState } from "react";
+import ImageUploadField from "../ImageUploadField";
 
 function TripPackageForm({
   initialData = {},
@@ -19,6 +20,7 @@ function TripPackageForm({
     end_date: initialData.end_date?.slice(0, 10) || "",
     price: initialData.price || "",
     capacity: initialData.capacity || "",
+    image_url: initialData.image_url || "",
   });
 
   const [errors, setErrors] = useState({});
@@ -200,6 +202,12 @@ function TripPackageForm({
           {errors.capacity && <p className="text-red-500 text-sm mt-1">{errors.capacity}</p>}
         </div>
       </div>
+
+      {/* Image */}
+      <ImageUploadField
+        value={formData.image_url}
+        onChange={(url) => setFormData((prev) => ({ ...prev, image_url: url }))}
+      />
 
       {/* Note about approval */}
       <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
