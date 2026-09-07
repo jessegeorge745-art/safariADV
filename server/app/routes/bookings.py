@@ -40,7 +40,7 @@ def create_booking():
         return jsonify({"error": "Trip package not found or not bookable."}), 404
 
     try:
-        spots = int(data.get("spots", 1))
+        spots = int(data.get("num_travelers", 1))
     except (TypeError, ValueError):
         return jsonify({"error": "spots must be an integer."}), 400
     if spots < 1:
