@@ -1,4 +1,3 @@
-\
 import os
 from dotenv import load_dotenv
 
@@ -14,4 +13,7 @@ class Config:
     MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", "True") == "True"
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
-
+    # Used to build the link inside the password-reset email.
+    FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+    MIN_PASSWORD_LENGTH = int(os.environ.get("MIN_PASSWORD_LENGTH", 8))
+    RESET_TOKEN_MAX_AGE = int(os.environ.get("RESET_TOKEN_MAX_AGE", 3600))
