@@ -14,7 +14,7 @@
  *   Admin     → AdminNavbar
  */
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import {  Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthProvider'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -43,15 +43,15 @@ import ResetPassword from './pages/auth/ResetPassword'
 // Traveler pages
 import TravelerDashboard from './pages/traveler/Dashboard'
 import TravelerTickets from './pages/traveler/Tickets'
-import TravelerOrders from './pages/traveler/Orders'
+
 import TravelerProfile from './pages/traveler/Profile'
 
 // Agent pages
 import AgentDashboard from './pages/agent/Dashboard'
-import AgentTripPackages from './pages/agent/TripPackages'
+import AgentTripPackages from './pages/agent/TripPackage'
 import CreateTripPackage from './pages/agent/CreateTripPackage'
 import EditTripPackage from './pages/agent/EditTripPackage'
-import TripPackageOrders from './pages/agent/TripPackageOrders'
+import TripPackageOrders from './pages/agent/TripPackageOrder'
 import TripPackageAnalytics from './pages/agent/TripPackageAnalytics'
 
 // Admin pages
@@ -63,7 +63,7 @@ import AdminReports from './pages/admin/Reports'
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <>
       <AuthProvider>
         <Routes>
           {/* Public (no auth needed) */}
@@ -94,7 +94,7 @@ export default function App() {
           >
             <Route path="/traveler/dashboard" element={<TravelerDashboard />} />
             <Route path="/traveler/tickets" element={<TravelerTickets />} />
-            <Route path="/traveler/orders" element={<TravelerOrders />} />
+            
             <Route path="/traveler/profile" element={<TravelerProfile />} />
           </Route>
 
@@ -130,7 +130,6 @@ export default function App() {
           </Route>
         </Routes>
       </AuthProvider>
-    </BrowserRouter>
+    </>
   )
 }
-
