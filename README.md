@@ -86,9 +86,18 @@ the meantime to show progress.
 dashboard choose **New → Blueprint**, point it at this repo (root
 directory `server`), and it provisions the web service + a free Postgres
 database. Fill in the secrets it asks for (`CORS_ORIGINS`, `FRONTEND_URL`,
-`ADMIN_EMAIL`/`ADMIN_PASSWORD`, the `MPESA_*` vars). After the first
-deploy, open the service's **Shell** tab and run `python seed.py` once to
-create the tables and the admin account.
+`ADMIN_EMAIL`/`ADMIN_PASSWORD`, the `MPESA_*` vars).
+
+Tables + the admin account are created automatically on every deploy —
+the build command runs `python seed.py` (see `render.yaml`), since the
+free plan doesn't include the Shell tab you'd otherwise use to run it
+manually. It's safe to run repeatedly: it only creates what's missing.
+
+**Editing `render.yaml` after the service already exists does not
+change its live settings** — Render only reads the file when the service
+is first created from a Blueprint. To change an env var or the build
+command on an existing service, edit it directly in that service's
+**Environment**/**Settings** tab in the dashboard.
 
 (Railway or Fly.io work too — same `requirements.txt` / `gunicorn run:app`
 start command; render.yaml just saves you the manual setup on Render
