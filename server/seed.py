@@ -8,14 +8,15 @@ app = create_app()
 with app.app_context():
     db.create_all()
 
-    if not User.query.filter_by(email="admin@safariadv.com").first():
+    admin_email = app.config["ADMIN_EMAIL"]
+    if not User.query.filter_by(email=admin_email).first():
         admin = User(
-            name="Admin",
-            email="admin@safariadv.com",
+            name=app.config["ADMIN_NAME"],
+            email=admin_email,
             role="admin",
             status="active",
         )
-        admin.set_password("changeme123")
+        admin.set_password(app.config["ADMIN_PASSWORD"])
         db.session.add(admin)
 
     default_categories = [

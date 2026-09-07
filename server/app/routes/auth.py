@@ -189,7 +189,7 @@ def forgot_password():
 def reset_password():
     data = request.get_json(silent=True) or {}
     token = data.get("token")
-    new_password = data.get("password") or ""
+    new_password = data.get("new_password") or ""
 
     if not token:
         return jsonify({"error": "token is required."}), 400
